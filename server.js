@@ -11,6 +11,25 @@ app.use((req, res, next) => {
 })
 
 //ROUTES
+app.get('/', (req, res, next) => {
+  res.sendFile(path.join(__dirname, 'index.html'))
+})
+
+app.get('/api/departments', async (req, res, next) => {
+  try {
+    res.send(await db.findAllDepartments())
+  } catch (ex) {
+    next(ex)
+  }
+})
+
+app.get('/api/users', async (req, res, next) => {
+  try {
+    res.send(await db.findAllUsers())
+  } catch (ex) {
+    next(ex)
+  }
+})
 
 //SYNC DB & LISTEN ON PORT
 const port = process.env.PORT || 3000

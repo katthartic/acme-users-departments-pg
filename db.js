@@ -8,6 +8,29 @@ const client = new pg.Client(
 
 client.connect()
 
+//CREATE/POST
+const createDepartment = async ({ name }) => {
+  const SQL = 'INSERT INTO departments(name) values($1) returning *'
+  return (await client.query(SQL, [name])).rows[0]
+}
+
+const createUser = async ({ name, department_id }) => {
+  const SQL =
+    'INSERT INTO users(name, department_id) values($1, $2) returning *'
+  return (await client.query(SQL, [name, department_id])).rows[0]
+}
+
+//GET
+const findAllUsers = async () => {
+  const SQL = 'SELECT * FROM users'
+  return (await client.query(SQL)).rows
+}
+const findAllDepartments = async () => {
+  const SQL = 'SELECT * FROM departments'
+  return (await client.query(SQL)).rows
+}
+
+//SYNC
 const sync = async () => {
   const SQL = `
     CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -26,10 +49,27 @@ const sync = async () => {
     );
     `
   await client.query(SQL)
-}
-const findAllUsers = () => {}
-const findAllDepartments = () => {}
 
+  //ADD ROWS TO DEPARTMENTS
+  const deptsToInsert = ['HR', 'Sales', 'Marketing', 'IT']
+  const depts = await Promise.all(
+    deptsToInsert.map(name => createDepartment({ name }))
+  )
+
+  const usersToInsert = ['Moe', 'Larry', 'Curly', 'Lucy', 'Shep']
+  const users = await Promise.all(
+    usersToInsert.map(name => {
+      const department_id =
+        depts[Math.round(Math.random() * (depts.length - 1))].id
+      createUser({ name, department_id })
+    })
+  )
+
+  console.log(await findAllDepartments())
+  console.log(await findAllUsers())
+}
+
+//EXPORTS
 module.exports = {
   sync,
   findAllUsers,

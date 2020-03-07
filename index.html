@@ -113,7 +113,7 @@
         async componentDidMount() {
           const responses = await Promise.all([
             axios.get('/api/users'),
-            axios('/api/departments')
+            axios.get('/api/departments')
           ])
           this.setState({
             users: responses[0].data,
