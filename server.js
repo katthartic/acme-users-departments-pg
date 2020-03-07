@@ -12,6 +12,8 @@ app.use((req, res, next) => {
 
 //ROUTES
 
-//LISTENING PORT
+//SYNC DB & LISTEN ON PORT
 const port = process.env.PORT || 3000
-app.listen(port, () => console.log(`LISTENING on port ${port}`))
+db.sync().then(() => {
+  app.listen(port, () => console.log(`LISTENING on port ${port}`))
+})
